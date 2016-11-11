@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+
 public class antifraud {
 	public static final boolean isValidTimeStamp(String timeStamp) {		
 		//System.out.println(timeStamp.matches("\\d{4}-[01]\\d-[0-3]\\d\\s[0-2][0-3]\\:[0-5]\\d\\:[0-5]\\d"));
@@ -37,14 +38,44 @@ public class antifraud {
 		
 		//./paymo_input/batch_payment.txt ./paymo_input/stream_payment.txt ./paymo_output/output1.txt ./paymo_output/output2.txt ./paymo_output/output3.txt
 		
+		 // \paymo_output\output1.txt \paymo_output\output2.txt \paymo_output\output3.txt
 		
+
+		String inputStr=args[0];  		
+		for (int i=1;i<args.length;i++)
+			inputStr+=" "+args[i];
+		//System.out.println(inputStr);
 		
+		if(inputStr.equals("\\paymo_input\\batch_payment.txt \\paymo_input\\stream_payment.txt \\paymo_output\\output1.txt \\paymo_output\\output2.txt \\paymo_output\\output3.txt")
+				||inputStr.equals("./paymo_input/batch_payment.txt ./paymo_input/stream_payment.txt ./paymo_output/output1.txt ./paymo_output/output2.txt ./paymo_output/output3.txt")){		
+			System.out.println("\t *** Welcome to Digital Wallet Fraud Detection Program ***");			
+		}
+		else{		
+			System.out.println("Error: Correct the command and argument list as:");
+			System.out.println("In Windows => java -cp src antifraud \\paymo_input\\batch_payment.txt \\paymo_input\\stream_payment.txt \\paymo_output\\output1.txt \\paymo_output\\output2.txt \\paymo_output\\output3.txt");
+			System.out.println("In Linux => java -cp src antifraud ./paymo_input/batch_payment.txt ./paymo_input/stream_payment.txt ./paymo_output/output1.txt ./paymo_output/output2.txt ./paymo_output/output3.txt");
+			return;
+		}
+	/*		
+		if(!String.  args..contentEquals("\\paymo_input\\batch_payment.txt")){
+			System.out.println("Error: Correct the input as => \\paymo_input\\batch_payment.txt \\paymo_input\\stream_payment.txt \\paymo_output\\output1.txt \\paymo_output\\output2.txt \\paymo_output\\output3.txt ");
+			return;
+		}
+		else if(!args[0].contentEquals("\\paymo_input\\stream_payment.txt")){
+			System.out.println("Error: Correct the input as => \\paymo_input\\batch_payment.txt \\paymo_input\\stream_payment.txt \\paymo_output\\output1.txt \\paymo_output\\output2.txt \\paymo_output\\output3.txt ");
+			return;
+		}
+		*/
+		 
 		Graph myGraph = new Graph();
+		
+		System.out.println("1. Reading and Representing the input file batch_payment.txt in a graph with nodes as transaction ids ... ");
+		
 		try{
 			String currentdir = new java.io.File("").getAbsolutePath();
-			System.out.println(currentdir);
-			System.out.println(currentdir+"\\paymo_input\\batch_payment.txt");
-			FileInputStream fstream1= new FileInputStream (currentdir+"\\paymo_input\\batch_payment.txt");
+			//System.out.println(currentdir);
+			//System.out.println(currentdir+args[0]);
+			FileInputStream fstream1= new FileInputStream (currentdir+args[0]);
 			
 			DataInputStream in = new DataInputStream(fstream1);
 			BufferedReader br = new BufferedReader (new InputStreamReader(in));
@@ -84,7 +115,7 @@ public class antifraud {
  		 while(Line!=null){
 				Line=br.readLine();
 				if(Line!=null){
-				System.out.println(Line);
+				//System.out.println(Line);
 				String[] tokens = Line.split(",");
 				//System.out.println(isValidTimeStamp(tokens[0]));
 				if(isValidTimeStamp(tokens[0])){
@@ -112,20 +143,23 @@ public class antifraud {
 		myGraph.addEdge(2, 3);
 		myGraph.addEdge(3, 1);*/
 		//myGraph.printGraph();
-		myGraph.writeGraph();
+		
+		//myGraph.writeGraph();
+		
+		System.out.println("2. Reading each line in the input file stream_payment.txt and checking each transaction if it is trusted or unverified ... ");
 		
 		try{
 			String currentdir = new java.io.File("").getAbsolutePath();
-			System.out.println(currentdir);
-			FileInputStream fstream1= new FileInputStream (currentdir+"\\paymo_input\\stream_payment.txt");
+			//System.out.println(currentdir);
+			FileInputStream fstream1= new FileInputStream (currentdir+args[1]);
 			
 			DataInputStream in = new DataInputStream(fstream1);
 			BufferedReader br = new BufferedReader (new InputStreamReader(in));
 			
 			// Writers 
-			FileOutputStream fostream1 = new FileOutputStream (currentdir+"\\paymo_output\\output1.txt");
-			FileOutputStream fostream2= new FileOutputStream (currentdir+"\\paymo_output\\output2.txt");
-			FileOutputStream fostream3= new FileOutputStream (currentdir+"\\paymo_output\\output3.txt");
+			FileOutputStream fostream1 = new FileOutputStream (currentdir+args[2]);
+			FileOutputStream fostream2= new FileOutputStream (currentdir+args[3]);
+			FileOutputStream fostream3= new FileOutputStream (currentdir+args[4]);
 			
 			OutputStreamWriter osw1 = new OutputStreamWriter(fostream1); 
 			OutputStreamWriter osw2 = new OutputStreamWriter(fostream2);
@@ -151,33 +185,33 @@ public class antifraud {
 						
 						if(!myGraph.BFSWithHop(Integer.valueOf(tokens[1].replaceAll("[^0-9.]", "")),Integer.valueOf(tokens[2].replaceAll("[^0-9.]", "")),1))
 							{
-							System.out.println("unverified: You've never had a transaction with this user before. Are you sure you would like to proceed with this payment?");
+							//System.out.println("unverified: You've never had a transaction with this user before. Are you sure you would like to proceed with this payment?");
 							w1.write("unverified"+"\n");
 							}
 						else{
-							System.out.println("trusted");
+							//System.out.println("trusted");
 							w1.write("trusted"+"\n");
 							}
 						
 						if(!myGraph.BFSWithHop(Integer.valueOf(tokens[1].replaceAll("[^0-9.]", "")),Integer.valueOf(tokens[2].replaceAll("[^0-9.]", "")),2))
 							{
-							System.out.println("unverified: This user is not a friend or a \"friend of a friend\". Are you sure you would like to proceed with this payment?");
+							//System.out.println("unverified: This user is not a friend or a \"friend of a friend\". Are you sure you would like to proceed with this payment?");
 							w2.write("unverified"+"\n");
 							}
 						
 						else{
-							System.out.println("trusted");
+							//System.out.println("trusted");
 							w2.write("trusted"+"\n");
 							}
 					
 						if(!myGraph.BFSWithHop(Integer.valueOf(tokens[1].replaceAll("[^0-9.]", "")),Integer.valueOf(tokens[2].replaceAll("[^0-9.]", "")),4))
 							{
-							System.out.println("unverified: This user is not a friend or a \"friend of a friend\". Are you sure you would like to proceed with this payment?");
+							//System.out.println("unverified: This user is not a friend or a \"friend of a friend\". Are you sure you would like to proceed with this payment?");
 							w3.write("unverified"+"\n");
 							}
 						
 						else{
-							System.out.println("trusted");
+							//System.out.println("trusted");
 							w3.write("trusted"+"\n");
 							}
 						
@@ -206,8 +240,11 @@ public class antifraud {
 			
 		} catch (IOException e){
 			System.err.println("Error: in reading original file" + e.getMessage());
-		}		
-		
+		}
+	
+		System.out.println("3. The detection of each transaction in the input file stream_payment.txt if it is trusted or unverified is saved in the files output1.text, output2.text and output3.text for Feature 1, Feature 2, and Feature 3 respectively.");
+		System.out.println("4. The Fraud Detection Program ends !");
+			
 		
 	}
 
@@ -268,7 +305,7 @@ class Graph {
 		String currentdir = new java.io.File("").getAbsolutePath();
 		
 		try {			
-			System.out.println(currentdir+ "in writing the graph to batch_payment_graph.txt");
+			System.out.println(currentdir+ " in writing the graph to batch_payment_graph.txt");
 			FileOutputStream fostream= new FileOutputStream (currentdir+"\\paymo_input\\batch_payment_graph.txt");
 			OutputStreamWriter osw = new OutputStreamWriter(fostream); 
 			BufferedWriter w = new BufferedWriter(osw);
@@ -292,7 +329,7 @@ class Graph {
             System.err.println("Problem writing to the file batch_payment_graph.txt");
         }	
 		
-		System.out.println("Writing the graph to " + currentdir + "\batch_payment_graph.txt is successful");
+		//System.out.println("Writing the graph to " + currentdir + "\batch_payment_graph.txt is successful");
 		
 /*		try{
 			String currentdir = new java.io.File("").getAbsolutePath();
